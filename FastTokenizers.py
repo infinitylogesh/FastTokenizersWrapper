@@ -2,6 +2,7 @@ from transformers import PreTrainedTokenizer
 from transformers.tokenization_utils import is_tf_available,is_torch_available
 from transformers.tokenization_bert import VOCAB_FILES_NAMES,PRETRAINED_VOCAB_FILES_MAP,PRETRAINED_INIT_CONFIGURATION,PRETRAINED_POSITIONAL_EMBEDDINGS_SIZES
 from transformers import tokenization_distilbert as tdb
+import os
 import logging
 logger = logging.getLogger(__name__)
 import six
@@ -136,6 +137,16 @@ class FastPreTrainedTokenizer(PreTrainedTokenizer):
         return [self.clean_up_tokenization(text)
                 if clear_up_tokenization_spaces else text
                 for text in self.tokenizer.decode_batch(ids_batch, skip_special_tokens)]
+    
+    def save_vocabulary(self, vocab_path):
+        """Save the tokenizer vocabulary to a directory or file."""
+        index = 0
+        if os.path.isdir(vocab_path):
+            vocab_file = os.path.join(vocab_path, self.vocab_files_names['vocab_file'])
+        else:
+            vocab_file = vocab_path
+        self.tokenizer._tokenizer.model.save(vocab_path,"")
+        return (vocab_file,)
 
 class BertTokenizerFast(FastPreTrainedTokenizer):
     vocab_files_names = VOCAB_FILES_NAMES
